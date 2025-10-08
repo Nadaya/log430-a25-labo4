@@ -26,17 +26,18 @@ counter_orders = Counter('orders_requests_total', 'Total calls to /orders')
 counter_highest_spenders = Counter('orders_highest_spenders_requests_total', 'Total calls to /orders/reports/highest-spenders')
 counter_best_sellers = Counter('orders_best_sellers_requests_total', 'Total calls to /orders/reports/best-sellers')
 
-@app.post('/orders')
-def post_orders():
-    counter_orders.inc()
 
-@app.post('/orders/reports/highest-spenders')
-def post_orders():
-    counter_highest_spenders.inc()
 
-@app.post('/orders/reports/best-sellers')
-def post_orders():
-    counter_best_sellers.inc()
+
+# @app.post('/orders/reports/best-sellers')
+# def post_orders():
+#     counter_best_sellers.inc()
+#     return get_report_best_selling_products()
+
+# @app.post('/orders/reports/highest-spenders')
+# def post_orders_highest_spenders():
+#     counter_highest_spenders.inc()
+#     return get_report_highest_spending_users()
 
 @app.get('/health-check')
 def health():
@@ -46,6 +47,7 @@ def health():
 # Write routes (Commands)
 @app.post('/orders')
 def post_orders():
+    counter_orders.inc()
     """Create a new order based on information on request body"""
     return create_order(request)
 
