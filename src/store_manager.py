@@ -11,6 +11,8 @@ from orders.controllers.order_controller import create_order, remove_order, get_
 from orders.controllers.user_controller import create_user, remove_user, get_user
 from stocks.controllers.product_controller import create_product, remove_product, get_product
 from stocks.controllers.stock_controller import get_stock, set_stock, get_stock_overview, populate_redis_on_startup
+
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
  
 app = Flask(__name__)
 
@@ -18,6 +20,23 @@ app = Flask(__name__)
 thread = threading.Timer(2.0, populate_redis_on_startup)
 thread.daemon = True
 thread.start()
+
+## Counter : 
+counter_orders = Counter('orders_requests_total', 'Total calls to /orders')
+counter_highest_spenders = Counter('orders_highest_spenders_requests_total', 'Total calls to /orders/reports/highest-spenders')
+counter_best_sellers = Counter('orders_best_sellers_requests_total', 'Total calls to /orders/reports/best-sellers')
+
+@app.post('/orders')
+def post_orders():
+    counter_orders.inc()
+
+@app.post('/orders/reports/highest-spenders')
+def post_orders():
+    counter_highest_spenders.inc()
+
+@app.post('/orders/reports/best-sellers')
+def post_orders():
+    counter_best_sellers.inc()
 
 @app.get('/health-check')
 def health():
@@ -111,6 +130,10 @@ def graphql_supplier():
     })
 
 # TODO: endpoint /metrics Prometheus
+
+@app.route("/metrics")
+def metrics():
+    return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 # Start Flask app
 if __name__ == '__main__':
